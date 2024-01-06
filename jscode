@@ -1,0 +1,81 @@
+// Funktion zum Abrufen des Datums für eine bestimmte Woche
+function getDateOfISOWeek(w, y) {
+    var simple = new Date(y, 0, 1 + (w - 1) * 7);
+    var dow = simple.getDay();
+    var ISOweekStart = simple;
+    if (dow <= 4)
+        ISOweekStart.setDate(simple.getDate() - simple.getDay() + 1);
+    else
+        ISOweekStart.setDate(simple.getDate() + 8 - simple.getDay());
+    return ISOweekStart;
+}
+
+// Erstellen Sie ein Array mit den Namen der Personen
+let people = ['Maxim', 'Tom', 'Johnny'];
+
+// Erstellen Sie ein Array mit den Aufgaben
+let tasks = ['Flur', 'Bad', 'Küche', 'Müll A (Glas)', 'Müll B (Papier)', 'Müll C (Rest)'];
+
+// Erstellen Sie ein leeres Objekt für den Putzplan
+let cleaningPlan = {};
+
+// Füllen Sie den Putzplan
+for (let week = 2; week <= 52; week++) {
+    cleaningPlan[`KW ${week}`] = {};
+    for (let i = 0; i < tasks.length; i++) {
+        cleaningPlan[`KW ${week}`][tasks[i]] = {
+            person: people[i % people.length],
+            completed: false
+        };
+    }
+}
+
+// Funktion zum Erzeugen der Tabelle
+function generateTable() {
+    let table = document.createElement('table');
+    let thead = document.createElement('thead');
+    let tbody = document.createElement('tbody');
+
+    // Erzeugen Sie die Überschriften
+    let headings = ['Woche', 'Datum', ...tasks];
+    let tr = document.createElement('tr');
+    for (let heading of headings) {
+        let th = document.createElement('th');
+        th.textContent = heading;
+        tr.appendChild(th);
+    }
+    thead.appendChild(tr);
+
+    // Erzeugen Sie die Zeilen
+    for (let week in cleaningPlan) {
+        let tr = document.createElement('tr');
+        let tdWeek = document.createElement('td');
+        tdWeek.textContent = week;
+        tr.appendChild(tdWeek);
+
+        let tdDate = document.createElement('td');
+        tdDate.textContent = getDateOfISOWeek(parseInt(week.slice(3)), 2024).toLocaleDateString();
+        tr.appendChild(tdDate);
+
+        for (let task in cleaningPlan[week]) {
+            let td = document.createElement('td');
+            let button = document.createElement('button');
+            button.textContent = cleaningPlan[week][task].completed ? 'Erledigt' : 'Nicht erledigt';
+            button.onclick = function() {
+                cleaningPlan[week][task].completed = !cleaningPlan[week][task].completed;
+                button.textContent = cleaningPlan[week][task].completed ? 'Erledigt' : 'Nicht erledigt';
+            };
+            td.appendChild(button);
+            tr.appendChild(td);
+        }
+
+        tbody.appendChild(tr);
+    }
+
+    table.appendChild(thead);
+    table.appendChild(tbody);
+    document.body.appendChild(table);
+}
+
+// Rufen Sie die Funktion zum Erzeugen der Tabelle auf
+generateTable();
